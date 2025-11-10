@@ -32,6 +32,7 @@ export default defineConfig({
       compress: {
         drop_console: false, // Keep console for debugging
         drop_debugger: true,
+        pure_funcs: [], // Don't remove any functions
       },
     },
   },

@@ -135,6 +135,28 @@ const profileRoute = createRoute({
   component: ProfilePage,
 });
 
+// 404 Not Found route
+const notFoundRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '*',
+  component: () => (
+    <div className="min-h-screen bg-black text-white pt-20 pb-32 flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+          404
+        </h1>
+        <p className="text-white/60 mb-8">Page not found</p>
+        <a 
+          href="/" 
+          className="inline-block px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-semibold hover:shadow-lg transition-all"
+        >
+          Go Home
+        </a>
+      </div>
+    </div>
+  ),
+});
+
 // Create route tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -145,10 +167,16 @@ const routeTree = rootRoute.addChildren([
   favoritesRoute,
   watchlistRoute,
   profileRoute,
+  notFoundRoute,
 ]);
 
-// Create router
-export const router = createRouter({ routeTree });
+// Create router with proper configuration for deployment
+export const router = createRouter({ 
+  routeTree,
+  defaultPreload: 'intent',
+  // Handle 404s gracefully
+  notFoundMode: 'root',
+});
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
