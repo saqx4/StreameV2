@@ -27,17 +27,32 @@ export interface UserData {
 // Create or get user document
 export const createUserDocument = async (user: AuthUser): Promise<void> => {
   if (!user) return;
-  const now = new Date().toISOString();
-  const userData: UserData = {
-    watchlist: [],
-    favorites: [],
-    createdAt: now,
-    updatedAt: now,
-  };
-  // Upsert user row if not exists
-  await supabase
-    .from('users')
-    .upsert({ id: user.uid, ...userData }, { onConflict: 'id' });
+  
+  try {
+    const now = new Date().toISOString();
+    const userData: UserData = {
+      watchlist: [],
+      favorites: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+    
+    // Upsert user row if not exists
+    const { error } = await supabase
+      .from('users')
+      .upsert({ id: user.uid, ...userData }, { onConflict: 'id' });
+    
+    if (error) {
+      console.error('Database error creating user document:', error);
+      throw new Error('Database error saving new user. Please try again or contact support.');
+    }
+  } catch (error) {
+    console.error('Error in createUserDocument:', error);
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to create user profile');
+  }
 };
 
 // Get user's watchlist and favorites

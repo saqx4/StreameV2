@@ -42,9 +42,55 @@ export function AuthProvider({ children }: AuthProviderProps) {
       password,
       options: {
         data: displayName ? { display_name: displayName } : undefined,
+        emailRedirectTo: window.location.origin,
       },
     });
-    if (error) throw error;
+    
+    if (error) {
+      // Provide better error messages
+      if (error.message.includes('already registered')) {
+        throw new Error('This email is already registered. Please sign in instead.');
+      }
+      throw error;
+    }
+    
+    const user = data.user;
+    if (!user) {
+      throw new Error('Signup failed. Please try again.');
+    }
+    
+    // Check if email confirmation is required
+    if (data.session === null) {
+      throw new Error('Please check your email to confirm your account before signing in.');
+    }
+    
+    const mapped: AuthUser = {
+      uid: user.id,
+      email: user.email ?? null,
+      displayName: (user.user_metadata as any)?.display_name ?? null,
+    };
+    
+    try {
+      await createUserDocument(mapped);
+      setCurrentUser(mapped);
+    } catch (dbError) {
+      console.error('Database error during signup:', dbError);
+      // Even if database fails, the auth account was created
+      throw new Error('Account created but profile setup failed. Please try signing in.');
+    }
+  };
+
+  const login = async (email: string, password: string) => {
+    const { data, error } = await auth.signInWithPassword({ email, password });
+    if (error) {
+      // Provide more helpful error messages
+      if (error.message.includes('Invalid login credentials')) {
+        throw new Error('Invalid email or password. Please check your credentials and try again.');
+      } else if (error.message.includes('Email not confirmed')) {
+        throw new Error('Please verify your email address before signing in. Check your inbox for the verification link.');
+      }
+      throw error;
+    }
     const user = data.user;
     if (user) {
       const mapped: AuthUser = {
@@ -52,21 +98,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         email: user.email ?? null,
         displayName: (user.user_metadata as any)?.display_name ?? null,
       };
-      await createUserDocument(mapped);
+      // Ensure user document exists
+      try {
+        await createUserDocument(mapped);
+      } catch (dbError) {
+        console.error('Failed to create/update user document on login:', dbError);
+        // Don't fail login if database sync fails
+      }
       setCurrentUser(mapped);
-    }
-  };
-
-  const login = async (email: string, password: string) => {
-    const { data, error } = await auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    const user = data.user;
-    if (user) {
-      setCurrentUser({
-        uid: user.id,
-        email: user.email ?? null,
-        displayName: (user.user_metadata as any)?.display_name ?? null,
-      });
     }
   };
 
