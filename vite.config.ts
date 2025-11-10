@@ -10,15 +10,16 @@ export default defineConfig({
       jsxRuntime: 'automatic',
     }),
     tailwindcss(),
-    // Remove console logs in production build
-    removeConsole({
-      includes: ['log', 'warn', 'debug', 'info'],
-    }),
+    // Temporarily disabled to help with debugging
+    // removeConsole({
+    //   includes: ['log', 'warn', 'debug', 'info'],
+    // }),
   ],
   build: {
     outDir: 'dist',
     sourcemap: false,
     minify: 'terser',
+    target: 'es2015', // Better browser compatibility
     // Increase chunk size warning limit
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
@@ -34,9 +35,8 @@ export default defineConfig({
     },
     terserOptions: {
       compress: {
-        drop_console: true,
+        drop_console: false, // Keep console for debugging
         drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug'],
       },
     },
   },
