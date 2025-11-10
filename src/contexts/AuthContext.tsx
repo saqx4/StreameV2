@@ -123,33 +123,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } else {
           setCurrentUser(null);
         }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        // Don't crash the app if auth fails
+        setCurrentUser(null);
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
-    const { data: subscription } = auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
-      const user = session?.user ?? null;
-      if (user) {
-        const mapped: AuthUser = {
-          uid: user.id,
-          email: user.email ?? null,
-          displayName: (user.user_metadata as any)?.display_name ?? null,
-        };
-        await createUserDocument(mapped);
-        setCurrentUser(mapped);
-      } else {
-        setCurrentUser(null);
-      }
+    try {
+      const { data: subscription } = auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
+        try {
+          const user = session?.user ?? null;
+          if (user) {
+            const mapped: AuthUser = {
+              uid: user.id,
+              email: user.email ?? null,
+              displayName: (user.user_metadata as any)?.display_name ?? null,
+            };
+            await createUserDocument(mapped);
+            setCurrentUser(mapped);
+          } else {
+            setCurrentUser(null);
+          }
+        } catch (error) {
+          console.error('Auth state change error:', error);
+          setCurrentUser(null);
+        }
+        setLoading(false);
+      });
+
+      init();
+
+      return () => {
+        mounted = false;
+        subscription.subscription.unsubscribe();
+      };
+    } catch (error) {
+      console.error('Auth subscription error:', error);
       setLoading(false);
-    });
-
-    init();
-
-    return () => {
-      mounted = false;
-      subscription.subscription.unsubscribe();
-    };
+      return () => {
+        mounted = false;
+      };
+    }
   }, []);
 
   const value: AuthContextType = {

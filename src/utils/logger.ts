@@ -40,12 +40,14 @@ class SecureLogger {
     }
   }
 
-  // Method to completely disable console in production
+  // Method to disable non-essential console methods in production
+  // Keep console.error and console.warn for debugging critical issues
   disableConsoleInProduction() {
     if (this.isProduction) {
       console.log = () => {};
-      console.warn = () => {};
-      console.error = () => {};
+      // Keep console.warn and console.error enabled for debugging
+      // console.warn = () => {};
+      // console.error = () => {};
       console.info = () => {};
       console.debug = () => {};
       console.trace = () => {};
