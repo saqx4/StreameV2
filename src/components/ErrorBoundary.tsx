@@ -5,7 +5,8 @@
  * Error Boundary Component - Catches React errors and displays fallback UI
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component } from 'react';
+import type { ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
