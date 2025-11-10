@@ -5,6 +5,7 @@
  * Error Boundary Component - Catches React errors and displays fallback UI
  */
 
+// Component is a value import, ErrorInfo and ReactNode are type-only imports
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
