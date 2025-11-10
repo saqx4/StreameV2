@@ -8,7 +8,6 @@ import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/re
 import { ReactiveGridBackground } from '../components/backgrounds/ReactiveGridBackground';
 import { MagneticDock } from '../components/layout/MagneticDock';
 import { Footer } from '../components/layout/Footer';
-import { RouterDevtools } from '../components/dev/RouterDevtools';
 
 // Lazy load page components for better initial load performance
 const HomePage = lazy(() => import('../pages/HomePage').then(m => ({ default: m.HomePage })));
@@ -42,7 +41,6 @@ const rootRoute = createRootRoute({
       <div className="relative z-10">
         <Footer />
       </div>
-      <RouterDevtools />
     </div>
   ),
 });
