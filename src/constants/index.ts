@@ -25,7 +25,7 @@ export const API_CONFIG = {
 
 // Security: Validate API key exists
 if (!API_CONFIG.tmdb.apiKey) {
-  console.error('TMDB API key is missing. Please set VITE_TMDB_API_KEY in your .env file');
+  console.warn('⚠️ TMDB API key is missing. Movie data will not load. Please set VITE_TMDB_API_KEY in Vercel environment variables.');
 }
 
 // Media Player Configuration
